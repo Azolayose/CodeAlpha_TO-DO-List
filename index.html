@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My To Do List</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background-image:url("./adieXR.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+    padding:25px;
+    border-radius:18px;
+    background:rgba(104,100,100,0.85);
+    backdrop-filter:blur(8px);
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:white;
+}
+
+.input-section{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+input{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
+}
+
+button{
+    padding:12px 16px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.add-btn{
+    background:#7a4e53;
+    color:white;
+}
+
+.add-btn:hover,
+.edit:hover,
+.delete:hover{
+    background:#5848e5;
+}
+
+ul{
+    list-style:none;
+}
+
+li{
+    background:white;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.task-text{
+    flex:1;
+    cursor:pointer;
+}
+
+.done{
+    text-decoration:line-through;
+    color:gray;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.edit,
+.delete{
+    background:#7a4e53;
+    color:white;
+    padding:7px 10px;
+    font-size:13px;
+}
+
+.footer{
+    margin-top:15px;
+    text-align:center;
+    color:white;
+    font-size:14px;
+}
+
+.counter{
+    text-align:center;
+    color:white;
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>My To Do List</h1>
+
+<div class="input-section">
+<input type="text" id="taskInput" placeholder="Type your task here">
+<button class="add-btn" onclick="addTask()">Add</button>
+</div>
+
+<div class="counter" id="countText">0 Tasks</div>
+
+<ul id="taskList"></ul>
+
+<div class="footer">
+Enjoy your day.
+</div>
+
+</div>
+
+<script>
+let taskArray = JSON.parse(localStorage.getItem("myTasks")) || [];
+
+showTasks();
+
+function saveData(){
+    localStorage.setItem("myTasks", JSON.stringify(taskArray));
+}
+
+function addTask(){
+
+    let box = document.getElementById("taskInput");
+    let value = box.value.trim();
+
+    if(value == ""){
+        alert("Please type a task first.");
+        return;
+    }
+
+    let taskObject = {
+        name:value,
+        completed:false
+    };
+
+    taskArray.push(taskObject);
+
+    box.value = "";
+
+    saveData();
+    showTasks();
+}
+
+function showTasks(){
+
+    let list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    for(let i = 0; i < taskArray.length; i++){
+
+        let line = "";
+
+        if(taskArray[i].completed){
+            line = "done";
+        }
+
+        list.innerHTML += `
+        <li>
+            <span class="task-text ${line}" onclick="finishTask(${i})">
+                ${taskArray[i].name}
+            </span>
+
+            <div class="actions">
+                <button class="edit" onclick="changeTask(${i})">Edit</button>
+                <button class="delete" onclick="removeTask(${i})">Delete</button>
+            </div>
+        </li>
+        `;
+    }
+
+    document.getElementById("countText").innerText =
+    taskArray.length + " Tasks";
+}
+
+function finishTask(num){
+
+    taskArray[num].completed = !taskArray[num].completed;
+
+    saveData();
+    showTasks();
+}
+
+function removeTask(num){
+
+    taskArray.splice(num,1);
+
+    saveData();
+    showTasks();
+}
+
+function changeTask(num){
+
+    let newTask = prompt("Edit task:", taskArray[num].name);
+
+    if(newTask != null && newTask.trim() != ""){
+        taskArray[num].name = newTask.trim();
+
+        saveData();
+        showTasks();
+    }
+}
+
+document.getElementById("taskInput").addEventListener("keypress", function(e){
+
+    if(e.key === "Enter"){
+        addTask();
+    }
+
+});
+</script>
+
+</body>
+</html>
